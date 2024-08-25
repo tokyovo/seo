@@ -1,0 +1,12 @@
+Django==5.0.4
+djangorestframework==3.15.1
+psycopg2-binary==2.9.9
+Gunicorn==22.0.0
+Celery==5.4.0
+pillow==10.3.0
+djangorestframework==3.15.1
+ollama==0.2.1
+djangorestframework-api-key==3.0.0
+requests==2.32.3
+google-generativeai==0.7.0
+opencv-python==4.10.0.84

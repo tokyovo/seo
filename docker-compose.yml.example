@@ -1,0 +1,59 @@
+version: '3.8'
+
+x-common-settings: &common-settings
+  build:
+    context: .
+    dockerfile: Dockerfile
+  volumes:
+    - ./agent:/app
+    - static_volume:/static
+    - media_volume:/media
+  depends_on:
+    - redis
+    - db
+  env_file:
+    - .env
+  restart: unless-stopped
+
+services:
+  redis:
+    image: redis:6.2-alpine  # Pin a specific minor version
+    container_name: redis_server
+    command: redis-server
+    restart: unless-stopped
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  web:
+    <<: *common-settings
+
+  celery-worker:
+    <<: *common-settings
+    command: celery -A agent worker -l info --concurrency=16
+
+  celery-beat:
+    <<: *common-settings
+    command: celery -A agent beat -l info --pidfile=/opt/celeryd.pid
+
+  nginx:
+    image: nginx:1.21-alpine
+    ports:
+      - "80:8080"
+    volumes:
+      - ./config/nginx:/etc/nginx/conf.d
+      - static_volume:/usr/share/nginx/html/static
+      - media_volume:/usr/share/nginx/html/media
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
