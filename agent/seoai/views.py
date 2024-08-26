@@ -1,3 +1,4 @@
+import json
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,7 +16,18 @@ class UserMessageView(APIView):
     permission_classes = [HasAPIKey]
 
     def post(self, request):
-        serializer = MessageSerializer(data=request.data)
+        # Extract the nested JSON string and parse it
+        data_str = request.data.get('value')
+        if data_str:
+            try:
+                data = json.loads(data_str.replace("'", '"'))  # Handle single quotes
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "No data provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Now pass the parsed data to the serializer
+        serializer = MessageSerializer(data=data)
         if serializer.is_valid():
             session, created = ChatSession.objects.get_or_create(
                 session_id=serializer.validated_data['session_id'],
@@ -34,7 +46,18 @@ class BotMessageView(APIView):
     permission_classes = [HasAPIKey]
 
     def post(self, request):
-        serializer = MessageSerializer(data=request.data)
+        # Extract the nested JSON string and parse it
+        data_str = request.data.get('value')
+        if data_str:
+            try:
+                data = json.loads(data_str.replace("'", '"'))  # Handle single quotes
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "No data provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Now pass the parsed data to the serializer
+        serializer = MessageSerializer(data=data)
         if serializer.is_valid():
             session, created = ChatSession.objects.get_or_create(
                 session_id=serializer.validated_data['session_id'],
@@ -53,7 +76,18 @@ class HistoryMessageView(APIView):
     permission_classes = [HasAPIKey]
 
     def post(self, request):
-        serializer = MessageSerializer(data=request.data)
+        # Extract the nested JSON string and parse it
+        data_str = request.data.get('value')
+        if data_str:
+            try:
+                data = json.loads(data_str.replace("'", '"'))  # Handle single quotes
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid JSON format"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error": "No data provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Now pass the parsed data to the serializer
+        serializer = MessageSerializer(data=data)
         if serializer.is_valid():
             session, created = ChatSession.objects.get_or_create(
                 session_id=serializer.validated_data['session_id'],
